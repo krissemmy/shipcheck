@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-export default function ShareButton({ url, score, results, verdict }) {
+export default function ShareButton({ url, score, confidence, results, verdict }) {
   const [copied, setCopied] = useState(false)
 
   function buildReport() {
@@ -18,6 +18,7 @@ export default function ShareButton({ url, score, results, verdict }) {
       '',
       `URL: ${url}`,
       `Launch Score: ${score}/100`,
+      `Inspection Confidence: ${confidence}/100`,
       '',
       'Passed:',
       passed.length > 0 ? passed.join('\n') : '  (none)',
@@ -30,6 +31,9 @@ export default function ShareButton({ url, score, results, verdict }) {
       '',
       'Recommendations:',
       recommendations.length > 0 ? recommendations.join('\n') : '  No recommendations — great work!',
+      '',
+      'Note:',
+      '  Unknown means ShipCheck could not verify this from the current inspection environment. It does not mean the app failed.',
       '',
       `Verdict: ${verdict}`,
       '',
@@ -67,11 +71,11 @@ export default function ShareButton({ url, score, results, verdict }) {
         ...styles.button,
         background: copied
           ? 'rgba(34, 197, 94, 0.15)'
-          : 'rgba(99, 102, 241, 0.12)',
+          : 'rgba(14, 165, 233, 0.11)',
         borderColor: copied
           ? 'rgba(34, 197, 94, 0.35)'
-          : 'rgba(99, 102, 241, 0.35)',
-        color: copied ? '#22c55e' : '#a5b4fc'
+          : 'rgba(125, 211, 252, 0.28)',
+        color: copied ? '#22c55e' : '#7dd3fc'
       }}
       aria-label="Copy report to clipboard"
     >

@@ -48,7 +48,7 @@ export default function ScoreRing({ score, verdict, isLoading }) {
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="rgba(99, 102, 241, 0.15)"
+            stroke="rgba(56, 189, 248, 0.15)"
             strokeWidth={strokeWidth}
           />
           <circle
@@ -56,7 +56,7 @@ export default function ScoreRing({ score, verdict, isLoading }) {
             cy={size / 2}
             r={radius}
             fill="none"
-            stroke="#6366f1"
+            stroke="#38bdf8"
             strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeDasharray={circumference}
@@ -75,6 +75,7 @@ export default function ScoreRing({ score, verdict, isLoading }) {
 
   return (
     <div style={{ ...styles.wrapper, opacity: mounted ? 1 : 0, transition: 'opacity 0.4s ease' }}>
+      <div style={styles.scoreLabel}>Launch Score</div>
       <div style={styles.ringContainer}>
         {/* Glow behind the ring */}
         <div
@@ -169,6 +170,13 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  scoreLabel: {
+    color: '#94a3b8',
+    fontFamily: "'DM Mono', monospace",
+    fontSize: '12px',
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase'
   },
   glow: {
     position: 'absolute',

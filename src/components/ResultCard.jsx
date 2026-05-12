@@ -21,6 +21,13 @@ const TYPE_CONFIG = {
     border: 'rgba(239, 68, 68, 0.2)',
     icon: '✗',
     iconBg: 'rgba(239, 68, 68, 0.15)'
+  },
+  unknown: {
+    color: '#94a3b8',
+    bg: 'rgba(148, 163, 184, 0.08)',
+    border: 'rgba(148, 163, 184, 0.2)',
+    icon: '?',
+    iconBg: 'rgba(148, 163, 184, 0.14)'
   }
 }
 

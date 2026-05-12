@@ -1,11 +1,68 @@
 import React, { useState, useRef } from 'react'
+import Hero from './Hero.jsx'
 import ScoreRing from './ScoreRing.jsx'
 import CheckTable from './CheckTable.jsx'
 import ShareButton from './ShareButton.jsx'
 import ResultCard from './ResultCard.jsx'
-import { runAllChecks, calculateScore, getRecommendations, getVerdict } from '../utils/checks.js'
+import {
+  runAllChecks,
+  calculateScore,
+  calculateInspectionConfidence,
+  getRecommendations,
+  getVerdict
+} from '../utils/checks.js'
 
 const EXAMPLE_URL = 'https://example.com'
+const CHECK_CARDS = [
+  {
+    title: 'Availability',
+    detail: 'HTTP status',
+    copy: 'Confirms the app responds with a usable public status code.'
+  },
+  {
+    title: 'HTTPS/TLS',
+    detail: 'TLS',
+    copy: 'Flags plain HTTP before a demo link reaches customers or teammates.'
+  },
+  {
+    title: 'Response time',
+    detail: 'Latency',
+    copy: 'Measures how quickly the deployed URL answers from the browser.'
+  },
+  {
+    title: 'Security headers',
+    detail: 'Headers',
+    copy: 'Checks CSP, HSTS, frame, content type, and referrer policy headers.'
+  },
+  {
+    title: 'Health endpoints',
+    detail: '/health',
+    copy: 'Looks for common readiness endpoints such as /health and /readyz.'
+  }
+]
+
+function ChecksSection() {
+  return (
+    <section style={styles.checksSection} aria-labelledby="checks-heading">
+      <div style={styles.sectionHeader}>
+        <h2 id="checks-heading" style={styles.sectionTitle}>What ShipCheck checks</h2>
+        <p style={styles.sectionCopy}>
+          A compact pre-launch pass over the signals that usually break first.
+        </p>
+      </div>
+
+      <div style={styles.checksGrid} className="checks-grid">
+        {CHECK_CARDS.map((check) => (
+          <article key={check.title} style={styles.checkCard}>
+            <div style={styles.checkDetail}>{check.detail}</div>
+            <h3 style={styles.checkTitle}>{check.title}</h3>
+            <p style={styles.checkCopy}>{check.copy}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
 
 export default function Checker() {
   const [url, setUrl] = useState('')
@@ -109,79 +166,85 @@ export default function Checker() {
   }
 
   const score = results ? calculateScore(results) : null
-  const verdict = score !== null ? getVerdict(score) : ''
+  const confidence = results ? calculateInspectionConfidence(results) : null
+  const verdict = score !== null ? getVerdict(score, results || []) : ''
   const recommendations = results ? getRecommendations(results) : []
   const displayResults = isRunning ? liveResults : (results || [])
 
   const passed = displayResults.filter(r => r.status === 'pass').length
   const warnings = displayResults.filter(r => r.status === 'warning').length
   const failed = displayResults.filter(r => r.status === 'fail').length
+  const unknown = displayResults.filter(r => r.status === 'unknown').length
+
+  const inputSlot = (
+    <div style={styles.inputCard}>
+      <form onSubmit={handleSubmit} style={styles.form} noValidate>
+        <div style={styles.inputRow} className="input-row">
+          <div style={styles.inputWrapper}>
+            <span style={styles.inputIcon} aria-hidden="true">URL</span>
+            <input
+              ref={inputRef}
+              type="url"
+              value={url}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="https://your-app.com"
+              style={{
+                ...styles.input,
+                borderColor: inputError
+                  ? 'rgba(251, 113, 133, 0.55)'
+                  : url
+                  ? 'rgba(56, 189, 248, 0.42)'
+                  : 'rgba(148, 163, 184, 0.14)'
+              }}
+              aria-label="App URL to check"
+              aria-invalid={!!inputError}
+              aria-describedby={inputError ? 'url-error' : undefined}
+              disabled={isRunning}
+              autoComplete="url"
+              spellCheck={false}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isRunning}
+            style={{
+              ...styles.button,
+              opacity: isRunning ? 0.72 : 1,
+              cursor: isRunning ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {isRunning ? (
+              <>
+                <span style={styles.spinner} aria-hidden="true" />
+                Checking
+              </>
+            ) : (
+              'Run Check'
+            )}
+          </button>
+        </div>
+
+        {inputError && (
+          <p id="url-error" style={styles.errorMsg} role="alert">
+            {inputError}
+          </p>
+        )}
+      </form>
+
+      <div style={styles.exampleRow}>
+        <span style={styles.exampleText}>Example target</span>
+        <button onClick={handleExample} style={styles.exampleLink} disabled={isRunning}>
+          https://example.com
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div style={styles.wrapper}>
-      {/* URL Input Form */}
-      <div style={styles.inputCard}>
-        <form onSubmit={handleSubmit} style={styles.form} noValidate>
-          <div style={styles.inputRow}>
-            <div style={styles.inputWrapper}>
-              <span style={styles.inputIcon} aria-hidden="true">🔗</span>
-              <input
-                ref={inputRef}
-                type="url"
-                value={url}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                placeholder="https://your-app.com"
-                style={{
-                  ...styles.input,
-                  borderColor: inputError
-                    ? 'rgba(239, 68, 68, 0.5)'
-                    : url
-                    ? 'rgba(99, 102, 241, 0.4)'
-                    : 'rgba(255,255,255,0.08)'
-                }}
-                aria-label="App URL to check"
-                aria-invalid={!!inputError}
-                aria-describedby={inputError ? 'url-error' : undefined}
-                disabled={isRunning}
-                autoComplete="url"
-                spellCheck={false}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isRunning}
-              style={{
-                ...styles.button,
-                opacity: isRunning ? 0.7 : 1,
-                cursor: isRunning ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {isRunning ? (
-                <>
-                  <span style={styles.spinner} aria-hidden="true" />
-                  Checking…
-                </>
-              ) : (
-                'Run Checks →'
-              )}
-            </button>
-          </div>
-
-          {inputError && (
-            <p id="url-error" style={styles.errorMsg} role="alert">
-              ⚠ {inputError}
-            </p>
-          )}
-        </form>
-
-        <div style={styles.exampleRow}>
-          <span style={styles.exampleText}>Don't have a URL?</span>
-          <button onClick={handleExample} style={styles.exampleLink} disabled={isRunning}>
-            Try with example.com →
-          </button>
-        </div>
-      </div>
+      <Hero inputSlot={inputSlot} />
+      <ChecksSection />
 
       {/* Results section */}
       {(isRunning || results) && (
@@ -209,11 +272,26 @@ export default function Checker() {
             />
 
             {/* Summary cards */}
-            {(passed > 0 || warnings > 0 || failed > 0) && (
-              <div style={styles.summaryRow}>
+            {confidence !== null && (
+              <div style={styles.confidenceRow}>
+                <span style={styles.confidenceLabel}>Inspection Confidence</span>
+                <span style={styles.confidenceValue}>{confidence}/100</span>
+              </div>
+            )}
+
+            {unknown > 0 && (
+              <p style={styles.unknownNote}>
+                Unknown means ShipCheck could not verify this from the current inspection environment.
+                It does not mean the app failed.
+              </p>
+            )}
+
+            {(passed > 0 || warnings > 0 || failed > 0 || unknown > 0) && (
+              <div style={styles.summaryRow} className="summary-row">
                 <ResultCard type="pass" count={passed} label="Passed" />
                 <ResultCard type="warning" count={warnings} label="Warnings" />
                 <ResultCard type="fail" count={failed} label="Failed" />
+                <ResultCard type="unknown" count={unknown} label="Unknown" />
               </div>
             )}
           </div>
@@ -251,6 +329,7 @@ export default function Checker() {
               <ShareButton
                 url={checkedUrl}
                 score={score}
+                confidence={confidence}
                 results={results}
                 verdict={verdict}
               />
@@ -278,15 +357,15 @@ const styles = {
   wrapper: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '24px',
+    gap: '28px',
     paddingBottom: '80px'
   },
   inputCard: {
-    background: '#1e2130',
-    border: '1px solid rgba(255,255,255,0.07)',
-    borderRadius: '16px',
-    padding: '28px',
-    boxShadow: '0 4px 24px rgba(0,0,0,0.3)'
+    background: 'rgba(15, 23, 42, 0.72)',
+    border: '1px solid rgba(148, 163, 184, 0.16)',
+    borderRadius: '14px',
+    padding: '16px',
+    boxShadow: '0 18px 48px rgba(0,0,0,0.24), inset 0 1px 0 rgba(255,255,255,0.04)'
   },
   form: {
     display: 'flex',
@@ -306,41 +385,43 @@ const styles = {
   },
   inputIcon: {
     position: 'absolute',
-    left: '14px',
-    fontSize: '16px',
+    left: '13px',
+    fontSize: '11px',
+    fontFamily: "'DM Mono', monospace",
+    color: '#64748b',
     zIndex: 1,
     pointerEvents: 'none',
-    opacity: 0.6
+    letterSpacing: '0.06em'
   },
   input: {
     width: '100%',
-    background: '#0f1117',
-    border: '1px solid rgba(255,255,255,0.08)',
+    background: '#08111b',
+    border: '1px solid rgba(148, 163, 184, 0.14)',
     borderRadius: '10px',
-    padding: '13px 16px 13px 42px',
+    padding: '13px 16px 13px 52px',
     fontSize: '15px',
     fontFamily: "'DM Mono', monospace",
-    color: '#e2e8f0',
+    color: '#e5eef8',
     outline: 'none',
     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-    boxShadow: '0 0 0 0 rgba(99,102,241,0)'
+    boxShadow: '0 0 0 0 rgba(56,189,248,0)'
   },
   button: {
-    background: '#6366f1',
-    color: '#fff',
-    border: 'none',
+    background: '#e2e8f0',
+    color: '#0b1117',
+    border: '1px solid rgba(255,255,255,0.22)',
     borderRadius: '10px',
-    padding: '13px 24px',
+    padding: '13px 22px',
     fontSize: '15px',
-    fontWeight: 600,
-    fontFamily: "'Syne', system-ui, sans-serif",
-    letterSpacing: '-0.01em',
+    fontWeight: 700,
+    fontFamily: "'DM Sans', system-ui, sans-serif",
+    letterSpacing: '0',
     whiteSpace: 'nowrap',
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    boxShadow: '0 4px 16px rgba(99, 102, 241, 0.35)',
-    transition: 'all 0.2s ease'
+    boxShadow: '0 10px 24px rgba(226, 232, 240, 0.1)',
+    transition: 'filter 0.2s ease, transform 0.2s ease'
   },
   spinner: {
     display: 'inline-block',
@@ -352,30 +433,32 @@ const styles = {
     animation: 'spin 0.7s linear infinite'
   },
   errorMsg: {
-    color: '#ef4444',
+    color: '#fb7185',
     fontSize: '13px',
     fontFamily: "'DM Mono', monospace",
     padding: '8px 12px',
-    background: 'rgba(239, 68, 68, 0.08)',
-    border: '1px solid rgba(239, 68, 68, 0.2)',
+    background: 'rgba(244, 63, 94, 0.08)',
+    border: '1px solid rgba(251, 113, 133, 0.22)',
     borderRadius: '8px'
   },
   exampleRow: {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    marginTop: '16px',
-    paddingTop: '16px',
-    borderTop: '1px solid rgba(255,255,255,0.05)'
+    marginTop: '12px',
+    paddingTop: '12px',
+    borderTop: '1px solid rgba(148, 163, 184, 0.1)'
   },
   exampleText: {
     fontSize: '13px',
+    fontFamily: "'DM Mono', monospace",
     color: '#64748b'
   },
   exampleLink: {
     background: 'none',
     border: 'none',
-    color: '#6366f1',
+    color: '#7dd3fc',
+    fontFamily: "'DM Mono', monospace",
     fontSize: '13px',
     fontWeight: 500,
     cursor: 'pointer',
@@ -384,6 +467,66 @@ const styles = {
     textDecorationStyle: 'dotted',
     textUnderlineOffset: '3px',
     transition: 'color 0.15s ease'
+  },
+  checksSection: {
+    paddingTop: '8px'
+  },
+  sectionHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: '20px',
+    alignItems: 'end',
+    marginBottom: '16px',
+    flexWrap: 'wrap'
+  },
+  sectionTitle: {
+    fontFamily: "'Syne', system-ui, sans-serif",
+    fontSize: '22px',
+    fontWeight: 750,
+    lineHeight: 1.2,
+    color: '#f8fafc',
+    letterSpacing: '0'
+  },
+  sectionCopy: {
+    fontSize: '14px',
+    color: '#7b8ba3',
+    lineHeight: 1.5,
+    maxWidth: '420px'
+  },
+  checksGrid: {
+    display: 'grid',
+    gap: '12px'
+  },
+  checkCard: {
+    minHeight: '154px',
+    background: 'rgba(15, 23, 42, 0.58)',
+    border: '1px solid rgba(148, 163, 184, 0.13)',
+    borderRadius: '10px',
+    padding: '16px',
+    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)'
+  },
+  checkDetail: {
+    display: 'inline-flex',
+    marginBottom: '20px',
+    color: '#7dd3fc',
+    background: 'rgba(14, 165, 233, 0.08)',
+    border: '1px solid rgba(125, 211, 252, 0.14)',
+    borderRadius: '999px',
+    padding: '4px 8px',
+    fontSize: '11px',
+    fontFamily: "'DM Mono', monospace"
+  },
+  checkTitle: {
+    fontSize: '15px',
+    fontWeight: 700,
+    color: '#e5eef8',
+    marginBottom: '8px',
+    letterSpacing: '0'
+  },
+  checkCopy: {
+    fontSize: '13px',
+    lineHeight: 1.55,
+    color: '#8795aa'
   },
   results: {
     display: 'flex',
@@ -396,8 +539,8 @@ const styles = {
     alignItems: 'center',
     gap: '10px',
     padding: '10px 16px',
-    background: 'rgba(99, 102, 241, 0.07)',
-    border: '1px solid rgba(99, 102, 241, 0.15)',
+    background: 'rgba(14, 165, 233, 0.07)',
+    border: '1px solid rgba(125, 211, 252, 0.14)',
     borderRadius: '8px',
     flexWrap: 'wrap'
   },
@@ -412,7 +555,7 @@ const styles = {
   checkedUrlValue: {
     fontSize: '13px',
     fontFamily: "'DM Mono', monospace",
-    color: '#a5b4fc',
+    color: '#bae6fd',
     flex: 1,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -430,9 +573,9 @@ const styles = {
     transition: 'all 0.15s ease'
   },
   scoreCard: {
-    background: 'rgba(30, 33, 48, 0.6)',
-    border: '1px solid rgba(99, 102, 241, 0.15)',
-    borderRadius: '16px',
+    background: 'rgba(15, 23, 42, 0.72)',
+    border: '1px solid rgba(148, 163, 184, 0.14)',
+    borderRadius: '14px',
     padding: '28px 24px',
     backdropFilter: 'blur(20px)',
     WebkitBackdropFilter: 'blur(20px)',
@@ -440,12 +583,45 @@ const styles = {
   },
   summaryRow: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
+    gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '12px',
     marginTop: '8px'
   },
+  confidenceRow: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'baseline',
+    gap: '10px',
+    marginTop: '-8px',
+    marginBottom: '18px'
+  },
+  confidenceLabel: {
+    color: '#94a3b8',
+    fontSize: '12px',
+    fontFamily: "'DM Mono', monospace",
+    textTransform: 'uppercase',
+    letterSpacing: '0.08em'
+  },
+  confidenceValue: {
+    color: '#e2e8f0',
+    fontSize: '18px',
+    fontWeight: 700,
+    fontFamily: "'Syne', system-ui, sans-serif"
+  },
+  unknownNote: {
+    maxWidth: '640px',
+    margin: '0 auto 18px',
+    padding: '10px 12px',
+    border: '1px solid rgba(148, 163, 184, 0.16)',
+    borderRadius: '8px',
+    background: 'rgba(148, 163, 184, 0.06)',
+    color: '#94a3b8',
+    fontSize: '13px',
+    lineHeight: 1.5,
+    textAlign: 'center'
+  },
   recommendations: {
-    background: '#1e2130',
+    background: 'rgba(15, 23, 42, 0.78)',
     border: '1px solid rgba(245, 158, 11, 0.15)',
     borderRadius: '12px',
     padding: '24px',

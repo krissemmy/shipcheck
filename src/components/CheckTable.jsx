@@ -22,6 +22,13 @@ function StatusBadge({ status }) {
       bg: 'rgba(239, 68, 68, 0.12)',
       color: '#ef4444',
       border: 'rgba(239, 68, 68, 0.25)'
+    },
+    unknown: {
+      icon: '?',
+      label: 'Unknown',
+      bg: 'rgba(148, 163, 184, 0.1)',
+      color: '#94a3b8',
+      border: 'rgba(148, 163, 184, 0.22)'
     }
   }
 
@@ -105,8 +112,8 @@ const styles = {
     letterSpacing: '-0.01em'
   },
   tableWrapper: {
-    background: '#1e2130',
-    border: '1px solid rgba(255,255,255,0.07)',
+    background: 'rgba(15, 23, 42, 0.78)',
+    border: '1px solid rgba(148, 163, 184, 0.14)',
     borderRadius: '12px',
     overflow: 'hidden'
   },
@@ -114,8 +121,8 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     padding: '12px 20px',
-    borderBottom: '1px solid rgba(255,255,255,0.07)',
-    background: 'rgba(99, 102, 241, 0.06)'
+    borderBottom: '1px solid rgba(148, 163, 184, 0.1)',
+    background: 'rgba(14, 165, 233, 0.06)'
   },
   headerCell: {
     fontSize: '11px',
@@ -131,7 +138,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     padding: '13px 20px',
-    borderBottom: '1px solid rgba(255,255,255,0.04)',
+    borderBottom: '1px solid rgba(148, 163, 184, 0.07)',
     transition: 'background 0.15s ease',
     animation: 'slideInRow 0.35s ease both'
   },
