@@ -349,7 +349,7 @@ async function buildMetaChecks(mainFetch) {
       : {
           id: 'page_title',
           label: 'Page Title',
-          status: 'fail',
+          status: 'warning',
           detail: 'Readable HTML did not include a <title> tag.',
           inspected: true
         },

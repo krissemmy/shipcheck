@@ -8,7 +8,7 @@ ShipCheck is a deployment readiness checker for live web apps. Paste a URL and i
 - HTTPS/TLS
 - App reachability and final HTTP status
 - Response time
-- Required security headers:
+- Common production security headers:
   - `Content-Security-Policy`
   - `Strict-Transport-Security`
   - `X-Frame-Options`
@@ -135,9 +135,11 @@ If headers cannot be inspected because the server request fails, the result is `
 
 Page title and meta description are only judged when HTML is readable.
 
-- Readable HTML with no title: `Fail`
+- Readable HTML with no title: `Warning`
 - Readable HTML with no meta description: `Warning`
 - Unreadable HTML, restricted route, or non-HTML response: `Unknown`
+
+Missing metadata affects shareability and polish, but it is not treated as a critical deployment failure.
 
 ## Local Development
 
