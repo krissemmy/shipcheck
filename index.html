@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ShipCheck — Deployment Readiness Checker</title>
+    <meta name="description" content="Paste a live URL and get a deployment readiness report in seconds. Check HTTPS, security headers, response time, and more." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        background: #0f1117;
+        color: #e2e8f0;
+        font-family: 'DM Sans', system-ui, sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      #root { min-height: 100vh; }
+
+      /* Global scrollbar */
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #0f1117; }
+      ::-webkit-scrollbar-thumb { background: #2d3452; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #4a5580; }
+
+      /* Selection */
+      ::selection { background: rgba(99, 102, 241, 0.3); color: #fff; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+
+    <style>
+      #createos-badge {
+        position: fixed;
+        bottom: 12px;
+        right: 12px;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        background: rgba(255,255,255,0.92);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 999px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+        font-size: 11px;
+        font-weight: 500;
+        color: #374151;
+        text-decoration: none;
+        font-family: system-ui, sans-serif;
+      }
+      #createos-badge:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+      #createos-badge img { width: 14px; height: 14px; }
+    </style>
+    <a id="createos-badge" href="https://createos.sh/app" target="_blank" rel="noopener noreferrer">
+      <img src="https://nodeops.network/SymbolBlack.svg" alt="" />
+      Built with CreateOS
+    </a>
+  </body>
+</html>
