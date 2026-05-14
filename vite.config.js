@@ -28,6 +28,6 @@ export default defineConfig({
   preview: {
     host: '0.0.0.0',
     port: 8080,
-    allowedHosts: ['shipcheck.krissemmy.com']
+    allowedHosts: ['shipcheck.krissemmy.com', 'production-shipcheck-9o.tyzo.nodeops.app']
   }
 })
