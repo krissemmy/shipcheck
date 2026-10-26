@@ -1,4 +1,5 @@
 import { performance } from 'node:perf_hooks'
+import { assertSafeUrl, getUnsafeUrlError, safeFetch } from './ssrf.js'
 
 const REQUIRED_HEADERS = [
   {
@@ -42,12 +43,7 @@ function validateUrl(value) {
     throw new Error('Missing url query parameter')
   }
 
-  const parsed = new URL(value)
-  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-    throw new Error('URL must start with http:// or https://')
-  }
-
-  return parsed
+  return assertSafeUrl(value)
 }
 
 function headersToObject(headers) {
@@ -69,14 +65,7 @@ async function fetchWithTiming(url, timeoutMs) {
   const timeout = setTimeout(() => controller.abort(), timeoutMs)
 
   try {
-    const response = await fetch(url, {
-      redirect: 'follow',
-      signal: controller.signal,
-      headers: {
-        'user-agent': 'ShipCheck/1.0 (+https://shipcheck.local)',
-        accept: 'text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8'
-      }
-    })
+    const response = await safeFetch(url, { signal: controller.signal })
 
     return {
       ok: true,
@@ -84,6 +73,9 @@ async function fetchWithTiming(url, timeoutMs) {
       responseTimeMs: Math.round(performance.now() - startedAt)
     }
   } catch (error) {
+    const unsafe = getUnsafeUrlError(error)
+    if (unsafe) throw unsafe
+
     return {
       ok: false,
       error,
